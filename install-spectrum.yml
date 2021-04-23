@@ -1,0 +1,39 @@
+---
+
+- name: install pre-requirements
+  hosts: all
+  become: yes
+  become_method: sudo
+  tasks:
+    #    - name: Message
+    #  debug:
+    #    msg: "install prerequirements"
+
+    # todo: SE linux /etc/selinux/config SELINUX=permissive
+
+
+    - name: Ensure prerequirements are installed
+      dnf:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+          #allow_downgrade: yes
+      loop:
+        - motif
+        - motif-devel
+        - ksh
+          #- libnscl
+
+
+
+- name: install SRAdmin
+  hosts: all
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  tasks:
+    - name: create sradmin directory
+      ansible.builtin.file:
+        path: /sw/SPECTRUM/SRAdmin
+        state: directory
+        mode: '0755'
