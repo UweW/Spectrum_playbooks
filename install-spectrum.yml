@@ -24,8 +24,6 @@
         - ksh
           #- libnscl
 
-
-
 - name: install SRAdmin
   hosts: all
   become: yes
@@ -37,3 +35,20 @@
         path: /sw/SPECTRUM/SRAdmin
         state: directory
         mode: '0755'
+
+    - name: copy sradmin.exe2yy
+      copy: src={{ dist_dir }}/sdic/linux/sradmin.exe dest=/sw/SPECTRUM/SRAdmin
+
+    - name: prepare rc2.d
+      copy: src={{ dist_dir }}/sdic/linux/sradmin.rc2 dest=/etc/init.d/sradmin
+
+    - name: chmod
+      ansible.builtin.file:
+        path: /etc/init.d/sradmin
+        mode: '0500'
+
+    - name: enable and start sradmin
+      service:
+        name: sradmin
+        state: started
+        enabled: yes
