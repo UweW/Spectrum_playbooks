@@ -24,6 +24,12 @@
         - ksh
           #- libnscl
 
+    - name: set SElinux to permissive mode
+      ansible.builtin.lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: SELINUX=permissive
+
 - name: install SRAdmin
   hosts: all
   become: yes
@@ -37,10 +43,15 @@
         mode: '0755'
 
     - name: copy sradmin.exe2yy
-      copy: src={{ dist_dir }}/sdic/linux/sradmin.exe dest=/sw/SPECTRUM/SRAdmin
+      copy:
+        src: "{{ dist_dir }}/sdic/linux/sradmin.exe"
+        dest: /sw/SPECTRUM/SRAdmin
+        mode: '0744'
 
     - name: prepare rc2.d
-      copy: src={{ dist_dir }}/sdic/linux/sradmin.rc2 dest=/etc/init.d/sradmin
+      copy:
+        src: "{{ dist_dir }}/sdic/linux/sradmin.rc2"
+        dest: /etc/init.d/sradmin
 
     - name: chmod
       ansible.builtin.file:
@@ -50,5 +61,57 @@
     - name: enable and start sradmin
       service:
         name: sradmin
-        state: started
         enabled: yes
+
+    - name: enable and start sradmin
+      service:
+        name: sradmin
+        state: started
+
+- name: prepare hostargs
+  hosts: all
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  tasks:
+#    - name: create hostargs file
+#      ansible.builtin.file:
+#        path: "{{ item }}.hostargs"
+#        state: touch
+
+    - name: create install hostargs file
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: remote_host={{ ansible_hostname }}
+        create: yes
+
+    - name: add landscape to hostargs
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: l_handle={{ lh }}
+
+    - name: add install directory to hostargs
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: install_dir={{ install_dir }}
+
+    - name: add install media path
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: vcd_path={{ install_dir }}
+
+    - name: add install ss
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: ss_install=yes
+
+    - name: add install oneclick
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: oc_install=yes
+
+    - name: copy hostargs to localhost
+      ansible.builtin.fetch:
+        src: /tmp/{{ ansible_hostname }}.hostargs
+        dest: ./
+        flat: yes
