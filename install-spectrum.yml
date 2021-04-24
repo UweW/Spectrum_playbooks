@@ -110,3 +110,7 @@
         src: /tmp/{{ ansible_hostname }}.hostargs
         dest: ./
         flat: yes
+
+    - name: start spectrum silent installation
+      local_action: ishell
+        "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -test"
