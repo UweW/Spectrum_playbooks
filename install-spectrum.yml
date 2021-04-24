@@ -111,6 +111,18 @@
         dest: ./
         flat: yes
 
+    - name: create install password file
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.pw"
+        line: "{{ ansible_hostname }} {{ ansible_user }} {{ ansible_ssh_pass }}"
+        create: yes
+
+    - name: copy password file to localhost
+      ansible.builtin.fetch:
+        src: /tmp/{{ ansible_hostname }}.pw
+        dest: ./
+        flat: yes
+
     - name: start spectrum silent installation
-      local_action: ishell
-        "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -test"
+      ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -test"
+      delegate_to: 127.0.0.1
