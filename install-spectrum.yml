@@ -74,11 +74,6 @@
   become_method: sudo
   gather_facts: no
   tasks:
-#    - name: create hostargs file
-#      ansible.builtin.file:
-#        path: "{{ item }}.hostargs"
-#        state: touch
-
     - name: create install hostargs file
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
