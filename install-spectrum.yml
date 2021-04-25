@@ -30,6 +30,18 @@
         regexp: '^SELINUX='
         line: SELINUX=permissive
 
+    - name: set hostname in hosts file
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^{{ ansible_host }}'
+        line: {{ ansible_host }} {{ ansible_hostname }}
+
+    - name : create spectrum owner
+      ansible.builtin.user:
+        name: {{ spectrum_owner }}
+        comment: Spectrum owner
+        shell: /bin/bash
+
 - name: install SRAdmin
   hosts: all
   become: yes
@@ -102,7 +114,7 @@
     - name: add install owner to hostargs
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: install_owner={{ ansible_user }}
+        line: install_owner={{ spectrum_owner }}
         regexp: '^install_owner='
 
     - name: add install media path
