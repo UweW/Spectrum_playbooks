@@ -38,14 +38,14 @@
   tasks:
     - name: create sradmin directory
       ansible.builtin.file:
-        path: /sw/SPECTRUM/SRAdmin
+        path: "{{ install_dir }}/../SRAdmin"
         state: directory
         mode: '0755'
 
     - name: copy sradmin.exe
       copy:
         src: "{{ dist_dir }}/sdic/linux/sradmin.exe"
-        dest: /sw/SPECTRUM/SRAdmin
+        dest: "{{ install_dir }}/../SRAdmin"
         mode: '0744'
 
     - name: prepare rc2.d
@@ -57,6 +57,12 @@
       ansible.builtin.file:
         path: /etc/init.d/sradmin
         mode: '0500'
+
+    - name: add landscape to hostargs
+      ansible.builtin.lineinfile:
+        path: /etc/init.d/sradmin
+        line: SRADHOME=/opt/CA/SRAdmin
+        regexp: '^SRADHOME='
 
     - name: enable and start sradmin
       service:
@@ -84,7 +90,7 @@
     - name: add landscape to hostargs
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: l_handle={{ lh }}
+        line: l_handle={{ l_handle }}
         regexp: '^l_handle='
 
     - name: add install directory to hostargs
@@ -93,11 +99,23 @@
         line: install_dir={{ install_dir }}
         regexp: '^install_dir='
 
+    - name: add install owner to hostargs
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: install_owner={{ ansible_user }}
+        regexp: '^install_owner='
+
     - name: add install media path
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: vcd_path={{ dist_dir }}
         regexp: '^vcd_path='
+
+    - name: add main location server
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: main_loc_serv={{ main_loc_serv }}
+        regexp: '^main_loc_serv='
 
     - name: add install ss
       ansible.builtin.lineinfile:
@@ -110,6 +128,30 @@
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: oc_install=yes
         regexp: '^oc_install='
+
+    - name: add exclude parts
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: exclude_parts=SA-RPT-MGR
+        regexp: '^exclude_parts='
+
+    - name: add same
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: same=yes
+        regexp: '^same='
+
+    - name: add overwrite
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: overwrite=yes
+        regexp: '^overwrite='
+
+    - name: add locale
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: locale=en_US
+        regexp: '^locale='
 
     - name: copy hostargs to localhost
       ansible.builtin.fetch:
@@ -132,3 +174,8 @@
     - name: start spectrum silent installation
       ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -test -accept"
       delegate_to: 127.0.0.1
+      register: spec_out
+
+    - name: print spectrum log
+      debug:
+        msg: "{{spec_out.stdout}}"
