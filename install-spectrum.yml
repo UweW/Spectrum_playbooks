@@ -42,7 +42,7 @@
         state: directory
         mode: '0755'
 
-    - name: copy sradmin.exe2yy
+    - name: copy sradmin.exe
       copy:
         src: "{{ dist_dir }}/sdic/linux/sradmin.exe"
         dest: /sw/SPECTRUM/SRAdmin
@@ -78,32 +78,38 @@
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: remote_host={{ ansible_hostname }}
+        regexp: '^remote_host='
         create: yes
 
     - name: add landscape to hostargs
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: l_handle={{ lh }}
+        regexp: '^l_handle='
 
     - name: add install directory to hostargs
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: install_dir={{ install_dir }}
+        regexp: '^install_dir='
 
     - name: add install media path
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: vcd_path={{ install_dir }}
+        line: vcd_path={{ dist_dir }}
+        regexp: '^vcd_path='
 
     - name: add install ss
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: ss_install=yes
+        regexp: '^ss_install='
 
     - name: add install oneclick
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: oc_install=yes
+        regexp: '^oc_install='
 
     - name: copy hostargs to localhost
       ansible.builtin.fetch:
@@ -124,5 +130,5 @@
         flat: yes
 
     - name: start spectrum silent installation
-      ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -test"
+      ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -test -accept"
       delegate_to: 127.0.0.1
