@@ -22,7 +22,51 @@
         - motif
         - motif-devel
         - ksh
-          #- libnscl
+        #- libnscl
+        - abrt
+        - elfutils-libelf
+        - expat
+        - fontconfig
+        - freetype
+        - glibc
+        - libaio
+        - libcanberra-gtk2
+        - libgcc
+        - libICE
+        - libjpeg
+        - libnsl
+        - libpng
+        - libSM
+        - libstdc++
+        - libuuid
+        - libX11
+        - libXau
+        - libxcb
+        - libxcrypt
+        - libXdmcp
+        - libXext
+        - libXfont2
+        - libXft
+        - libXi
+        - libxkbfile
+        - libXmu
+        - libXp
+        - libXrender
+        - libXt
+        - libXtst
+        - ncurses
+        #- ncurses-common-libs
+        - ncurses-compat-libs
+        - ncurses-libs
+        - nss-softokn-freebl
+        - numactl-libs
+        #- perl-LWP-Protokoll-https
+        - sssd-client
+        - xorg-x11-fonts-misc
+        - xorg-x11-server-common
+        - xorg-x11-xkb-utils
+        - xterm
+        - zlib
 
     - name: set SElinux to permissive mode
       ansible.builtin.lineinfile:
@@ -213,7 +257,7 @@
         flat: yes
 
     - name: start spectrum silent installation
-      ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -test -accept"
+      ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -accept"
       delegate_to: 127.0.0.1
       register: spec_out
 
