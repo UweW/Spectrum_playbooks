@@ -30,17 +30,37 @@
         regexp: '^SELINUX='
         line: SELINUX=permissive
 
+    - name: stop firewalld
+      service:
+        name: firewalld
+        state: stopped
+        enabled: no
+
     - name: set hostname in hosts file
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        regexp: '^{{ ansible_host }}'
-        line: {{ ansible_host }} {{ ansible_hostname }}
+        regexp: "^{{ ansible_host }}"
+        line: "{{ ansible_host }} {{ ansible_hostname }}"
 
-    - name : create spectrum owner
+    - name:
+      ansible.builtin.replace:
+        path: /etc/sudoers
+        regexp: '^$'
+        replace: "##### replaced empty lines regarding Spectrum Bug"
+
+    - name: create spectrum owner
       ansible.builtin.user:
-        name: {{ spectrum_owner }}
+        name: "{{ spectrum_owner }}"
         comment: Spectrum owner
         shell: /bin/bash
+        password: "{{ 'spectrum' | password_hash('sha512') }}"
+        update_password: on_create
+
+    - name: give spectrum owner access to sradmin.exe
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        line: "{{ spectrum_owner }} ALL=/opt/CA/SRAdmin/sradmin.exe"
+        # todo: sradmin als variable
 
 - name: install SRAdmin
   hosts: all
@@ -70,11 +90,20 @@
         path: /etc/init.d/sradmin
         mode: '0500'
 
-    - name: add landscape to hostargs
+    - name: set sradmin home
       ansible.builtin.lineinfile:
         path: /etc/init.d/sradmin
         line: SRADHOME=/opt/CA/SRAdmin
         regexp: '^SRADHOME='
+        # todo: variable in host file
+
+    - name: set sudoers symlink
+      ansible.builtin.file:
+        src: /etc/sudoers
+        dest: /opt/CA/SRAdmin/sudoers
+        owner: root
+        group: root
+        state: link
 
     - name: enable and start sradmin
       service:
@@ -174,7 +203,7 @@
     - name: create install password file
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.pw"
-        line: "{{ ansible_hostname }} {{ ansible_user }} {{ ansible_ssh_pass }}"
+        line: "{{ ansible_hostname }} {{ spectrum_owner }} spectrum"
         create: yes
 
     - name: copy password file to localhost
