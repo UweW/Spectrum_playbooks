@@ -239,11 +239,11 @@
         line: ignore_disk_space=yes
         regexp: '^ignore_disk_space='
 
-    - name: add xtn install
+    - name: add patch yes
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: xtn_install=yes
-        regexp: '^xtn_install='
+        line: patch=yes
+        regexp: '^patch='
 
     - name: add locale
       ansible.builtin.lineinfile:
