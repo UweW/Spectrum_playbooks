@@ -1,0 +1,14 @@
+[all:vars]
+ansible_user="admin"
+ansible_ssh_pass="admin"
+spectrum_owner="spectrum"
+#dist_dir="/home/uwe/Downloads/10.04.03.01"
+#dist_dir="/home/uwe/Downloads/10.4.x"
+dist_dir="/home/uwe/Downloads/10.04.02.02"
+l_handle="0x100000"
+install_dir="/opt/CA/Spectrum"
+main_loc_serv="spec"
+
+[spectroserver]
+#localhost ansible_connection=local ansible_python_interpreter="/usr/bin/env python"
+spec ansible_host=192.168.121.224
