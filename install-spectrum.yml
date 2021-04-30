@@ -275,6 +275,7 @@
     - name: start spectrum silent installation
       ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -accept "
       delegate_to: 127.0.0.1
+      become: no
       register: spec_out
       when: ansible_facts.services["processd.service"] is not defined
 
