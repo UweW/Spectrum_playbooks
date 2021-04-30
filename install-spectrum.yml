@@ -13,60 +13,61 @@
 
 
     - name: Ensure prerequirements are installed
-      dnf:
-        name: "{{ item }}"
+      yum:
+        name: "{{ packages }}"
         state: present
-        update_cache: yes
-          #allow_downgrade: yes
-      loop:
-        - motif
-        - motif-devel
-        - ksh
+      vars:
+        packages:
+        - motif.x86_64
+        - motif-devel.x86_64
+        - ksh.x86_64
         #- libnscl
-        - abrt
-        - elfutils-libelf
-        - expat
-        - fontconfig
-        - freetype
-        - glibc
-        - libaio
-        - libcanberra-gtk2
-        - libgcc
-        - libICE
-        - libjpeg
-        - libnsl
-        - libpng
-        - libSM
-        - libstdc++
-        - libuuid
-        - libX11
-        - libXau
-        - libxcb
-        - libxcrypt
-        - libXdmcp
-        - libXext
-        - libXfont2
-        - libXft
-        - libXi
-        - libxkbfile
-        - libXmu
-        - libXp
-        - libXrender
-        - libXt
-        - libXtst
-        - ncurses
+        - libnsl.x86_64
+        - abrt.x86_64
+        - elfutils-libelf.x86_64
+        - expat.x86_64
+        - fontconfig.x86_64
+        - freetype.x86_64
+        - glibc.x86_64
+        - libaio.x86_64
+        - libcanberra-gtk2.x86_64
+        - libgcc.x86_64
+        - libICE.x86_64
+        - libjpeg-turbo.x86_64
+        - libnsl.x86_64
+        - libpng.x86_64
+        - libSM.x86_64
+        - libstdc++.x86_64
+        - libuuid.x86_64
+        - libX11.x86_64
+        - libXau.x86_64
+        - libxcb.x86_64
+        - libxcrypt.x86_64
+        - libxcrypt.i686
+        - libXdmcp.x86_64
+        - libXext.x86_64
+        - libXfont2.x86_64
+        - libXft.x86_64
+        - libXi.x86_64
+        - libxkbfile.x86_64
+        - libXmu.x86_64
+        - libXp.x86_64
+        - libXrender.x86_64
+        - libXt.x86_64
+        - libXtst.x86_64
+        - ncurses.x86_64
         #- ncurses-common-libs
-        - ncurses-compat-libs
-        - ncurses-libs
-        - nss-softokn-freebl
-        - numactl-libs
-        #- perl-LWP-Protokoll-https
-        - sssd-client
+        - ncurses-compat-libs.x86_64
+        - ncurses-libs.x86_64
+        - nss-softokn-freebl.x86_64
+        - numactl-libs.x86_64
+        - perl-LWP-Protocol-https
+        - sssd-client.x86_64
         - xorg-x11-fonts-misc
-        - xorg-x11-server-common
-        - xorg-x11-xkb-utils
-        - xterm
-        - zlib
+        - xorg-x11-server-common.x86_64
+        - xorg-x11-xkb-utils.x86_64
+        - xterm.x86_64
+        - zlib.x86_64
 
     - name: set SElinux to permissive mode
       ansible.builtin.lineinfile:
@@ -232,6 +233,18 @@
         line: overwrite=yes
         regexp: '^overwrite='
 
+    - name: ignore disk space
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: ignore_disk_space=yes
+        regexp: '^ignore_disk_space='
+
+    - name: add xtn install
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: xtn_install=yes
+        regexp: '^xtn_install='
+
     - name: add locale
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
@@ -256,11 +269,21 @@
         dest: ./
         flat: yes
 
+    - name: get service facts
+      service_facts:
+
     - name: start spectrum silent installation
-      ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -accept"
+      ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -accept "
       delegate_to: 127.0.0.1
       register: spec_out
+      when: ansible_facts.services["processd.service"] is not defined
 
     - name: print spectrum log
       debug:
         msg: "{{spec_out.stdout}}"
+      when: spec_out.stdout is defined
+      #when: ansible_facts.services["processd.service"] is not defined
+
+#    - name: services
+#      debug:
+#        msg: "{{ ansible_facts.services }}"
