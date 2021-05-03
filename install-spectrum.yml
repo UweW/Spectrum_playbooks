@@ -9,9 +9,6 @@
     #  debug:
     #    msg: "install prerequirements"
 
-    # todo: SE linux /etc/selinux/config SELINUX=permissive
-
-
     - name: Ensure prerequirements are installed
       yum:
         name: "{{ packages }}"
@@ -269,28 +266,58 @@
         dest: ./
         flat: yes
 
-- name: start remote install of Spectrum
+- name: start remote fresh installation of Spectrum
   hosts: all
-  become: no
+  become: yes
   become_method: sudo
   gather_facts: yes
   tasks:
     - name: get service facts
       service_facts:
-
     - name: start spectrum silent installation
       ansible.builtin.command: "{{ dist_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -accept "
       delegate_to: 127.0.0.1
       become: no
       register: spec_out
       when: ansible_facts.services["processd.service"] is not defined
-
+      failed_when: "'Installation failure' in spec_out.stdout"
+      changed_when: "'Installation successful' in spec_out.stdout"
     - name: print spectrum log
       debug:
         msg: "{{spec_out.stdout}}"
       when: spec_out.stdout is defined
-      #when: ansible_facts.services["processd.service"] is not defined
 
-    - name: services
+- name: install update if requested
+  hosts: all
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  tasks:
+    - name: add install media path
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: vcd_path={{ update_dir }}
+        regexp: '^vcd_path='
+
+    - name: copy hostargs to localhost
+      ansible.builtin.fetch:
+        src: /tmp/{{ ansible_hostname }}.hostargs
+        dest: ./
+        flat: yes
+
+    #- name: stop spectroserver
+    #  command: sudo {{ spectrum_owner }} {{ inst_dir }}/bin/stopSS.sh
+
+    - name: start spectrum update silent installation
+      ansible.builtin.command: "{{ update_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -accept "
+      delegate_to: 127.0.0.1
+      become: no
+      register: update_out
+      failed_when: "'Installation failure' in update_out.stdout or 'Failed to copy' in update_out.stdout"
+      changed_when: "'Installation successful' in update_out.stdout"
+
+    - name: print spectrum log
       debug:
-        msg: "{{ ansible_facts.services }}"
+        msg: "{{update_out.stdout}}"
+      when: update_out.stdout is defined
+
