@@ -218,17 +218,17 @@
         line: exclude_parts=SA-RPT-MGR
         regexp: '^exclude_parts='
 
-    - name: add same
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: same=yes
-        regexp: '^same='
+#    - name: add same
+#      ansible.builtin.lineinfile:
+#        path: "/tmp/{{ ansible_hostname }}.hostargs"
+#        line: same=yes
+#        regexp: '^same='
 
-    - name: add overwrite
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: overwrite=yes
-        regexp: '^overwrite='
+#    - name: add overwrite
+#      ansible.builtin.lineinfile:
+#        path: "/tmp/{{ ansible_hostname }}.hostargs"
+#        line: overwrite=yes
+#        regexp: '^overwrite='
 
     - name: ignore disk space
       ansible.builtin.lineinfile:
@@ -236,11 +236,11 @@
         line: ignore_disk_space=yes
         regexp: '^ignore_disk_space='
 
-    - name: add patch yes
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: patch=yes
-        regexp: '^patch='
+#    - name: add patch yes
+#     ansible.builtin.lineinfile:
+#        path: "/tmp/{{ ansible_hostname }}.hostargs"
+#        line: patch=yes
+#        regexp: '^patch='
 
     - name: add locale
       ansible.builtin.lineinfile:
@@ -266,12 +266,24 @@
         dest: ./
         flat: yes
 
-- name: start remote fresh installation of Spectrum
+- name: fresh installation of Spectrum
   hosts: all
   become: yes
   become_method: sudo
   gather_facts: yes
   tasks:
+    - name: remove install ss
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: ss_install=no
+        regexp: '^ss_install='
+
+    - name: remove install oneclick
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: oc_install=no
+        regexp: '^oc_install='
+
     - name: get service facts
       service_facts:
     - name: start spectrum silent installation
