@@ -272,18 +272,6 @@
   become_method: sudo
   gather_facts: yes
   tasks:
-    - name: remove install ss
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: ss_install=no
-        regexp: '^ss_install='
-
-    - name: remove install oneclick
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: oc_install=no
-        regexp: '^oc_install='
-
     - name: get service facts
       service_facts:
     - name: start spectrum silent installation
@@ -294,10 +282,11 @@
       when: ansible_facts.services["processd.service"] is not defined
       failed_when: "'Installation failure' in spec_out.stdout"
       changed_when: "'Installation successful' in spec_out.stdout"
-    - name: print spectrum log
-      debug:
-        msg: "{{spec_out.stdout}}"
-      when: spec_out.stdout is defined
+
+#    - name: print spectrum log
+#      debug:
+#        msg: "{{spec_out.stdout}}"
+#      when: spec_out.stdout is defined
 
 - name: install update if requested
   hosts: all
@@ -310,6 +299,18 @@
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: vcd_path={{ update_dir }}
         regexp: '^vcd_path='
+
+    - name: remove install ss
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: ss_install=no
+        regexp: '^ss_install='
+
+    - name: remove install oneclick
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: oc_install=no
+        regexp: '^oc_install='
 
     - name: copy hostargs to localhost
       ansible.builtin.fetch:
@@ -327,9 +328,12 @@
       register: update_out
       failed_when: "'Installation failure' in update_out.stdout or 'Failed to copy' in update_out.stdout"
       changed_when: "'Installation successful' in update_out.stdout"
+      #when: update_dir is defined
 
-    - name: print spectrum log
-      debug:
-        msg: "{{update_out.stdout}}"
-      when: update_out.stdout is defined
+#    - name: print spectrum log
+#      debug:
+#        msg: "{{update_out.stdout}}"
+#      when: update_out.stdout is defined
 
+    - name: start spectroserver
+      command: sudo {{ spectrum_owner }} {{ inst_dir }}/bin/startSS.sh
