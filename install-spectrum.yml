@@ -300,17 +300,17 @@
         line: vcd_path={{ update_dir }}
         regexp: '^vcd_path='
 
-    - name: remove install ss
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: ss_install=no
-        regexp: '^ss_install='
+#    - name: remove install ss
+#      ansible.builtin.lineinfile:
+#        path: "/tmp/{{ ansible_hostname }}.hostargs"
+#        line: ss_install=no
+#        regexp: '^ss_install='
 
-    - name: remove install oneclick
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: oc_install=no
-        regexp: '^oc_install='
+#^    - name: remove install oneclick
+#      ansible.builtin.lineinfile:
+#        path: "/tmp/{{ ansible_hostname }}.hostargs"
+#        line: oc_install=no
+#        regexp: '^oc_install='
 
     - name: copy hostargs to localhost
       ansible.builtin.fetch:
@@ -329,6 +329,7 @@
       failed_when: "'Installation failure' in update_out.stdout or 'Failed to copy' in update_out.stdout"
       changed_when: "'Installation successful' in update_out.stdout"
       #when: update_dir is defined
+      when: false
 
 #    - name: print spectrum log
 #      debug:
@@ -336,4 +337,6 @@
 #      when: update_out.stdout is defined
 
     - name: start spectroserver
-      command: "sudo {{ spectrum_owner }} {{ install_dir }}/bin/startSS.sh"
+      become: yes
+      become_user: "{{ spectrum_owner }}"
+      command: "{{ install_dir }}/bin/startSS.pl"
