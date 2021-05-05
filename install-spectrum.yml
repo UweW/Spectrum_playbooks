@@ -336,4 +336,4 @@
 #      when: update_out.stdout is defined
 
     - name: start spectroserver
-      command: sudo {{ spectrum_owner }} {{ inst_dir }}/bin/startSS.sh
+      command: "sudo {{ spectrum_owner }} {{ install_dir }}/bin/startSS.sh"
