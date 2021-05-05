@@ -294,6 +294,15 @@
   become_method: sudo
   gather_facts: no
   tasks:
+    #- name: read currend version
+    #  vars:
+    #    installed: "{{ lookup('file', {{ install_dir }}/Install-Tools/.history , errors='ignore') }}"
+
+    #- name: print spectrum log
+    #  debug:
+    #    msg: "{{ installed }}"
+    #  when: installed is defined
+
     - name: add install media path
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
@@ -329,7 +338,7 @@
       failed_when: "'Installation failure' in update_out.stdout or 'Failed to copy' in update_out.stdout"
       changed_when: "'Installation successful' in update_out.stdout"
       #when: update_dir is defined
-      when: false
+      #when: false
 
 #    - name: print spectrum log
 #      debug:
