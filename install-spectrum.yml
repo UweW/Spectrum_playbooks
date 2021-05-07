@@ -1,5 +1,23 @@
 ---
 
+- name: check spectrum versions
+  hosts: localhost
+  become: no
+  vars:
+    preversion: "{{ lookup('file', dist_dir + '/requires.dat', errors='ignore') }}"
+    version: "{{ lookup('file', dist_dir + '/version.dat', errors='ignore') }}"
+    requires: "{{ lookup('file', update_dir + '/requires.dat', errors='ignore') }}"
+  tasks:
+    - name: check if base version requires an other version
+      debug:
+        msg: "you try to install {{ version }} but this requires an installed {{ preversion }}"
+      failed_when: preversion != ""
+
+    - name: check if update version requires the base version
+      debug:
+        msg: "Base version : {{ version }} , the update requires  {{ requires }}"
+      failed_when:  requires not in version
+
 - name: install pre-requirements
   hosts: all
   become: yes
@@ -101,8 +119,7 @@
     - name: give spectrum owner access to sradmin.exe
       ansible.builtin.lineinfile:
         path: /etc/sudoers
-        line: "{{ spectrum_owner }} ALL=/opt/CA/SRAdmin/sradmin.exe"
-        # todo: sradmin als variable
+        line: "{{ spectrum_owner }} ALL={{ install_dir }}/../SRAdmin/sradmin.exe"
 
 - name: install SRAdmin
   hosts: all
@@ -135,14 +152,13 @@
     - name: set sradmin home
       ansible.builtin.lineinfile:
         path: /etc/init.d/sradmin
-        line: SRADHOME=/opt/CA/SRAdmin
+        line: SRADHOME={{ install_dir }}/../SRAdmin
         regexp: '^SRADHOME='
-        # todo: variable in host file
 
     - name: set sudoers symlink
       ansible.builtin.file:
         src: /etc/sudoers
-        dest: /opt/CA/SRAdmin/sudoers
+        dest: "{{ install_dir }}/../SRAdmin/sudoers"
         owner: root
         group: root
         state: link
@@ -266,6 +282,7 @@
         dest: ./
         flat: yes
 
+
 - name: fresh installation of Spectrum
   hosts: all
   become: yes
@@ -288,6 +305,7 @@
 #        msg: "{{spec_out.stdout}}"
 #      when: spec_out.stdout is defined
 
+#TODO: nochmal prüfen ob installierte Version kompatibel zum update ist
 - name: install update if requested
   hosts: all
   become: yes
@@ -302,7 +320,6 @@
     #  debug:
     #    msg: "{{ installed }}"
     #  when: installed is defined
-
     - name: add install media path
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
@@ -326,7 +343,7 @@
         src: /tmp/{{ ansible_hostname }}.hostargs
         dest: ./
         flat: yes
-
+    #TODO: wenn nötig SS stoppen
     #- name: stop spectroserver
     #  command: sudo {{ spectrum_owner }} {{ inst_dir }}/bin/stopSS.sh
 
