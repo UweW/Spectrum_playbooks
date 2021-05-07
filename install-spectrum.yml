@@ -102,7 +102,7 @@
         regexp: "^{{ ansible_host }}"
         line: "{{ ansible_host }} {{ ansible_hostname }}"
 
-    - name:
+    - name: remove empty lines from sudoers
       ansible.builtin.replace:
         path: /etc/sudoers
         regexp: '^$'
@@ -119,7 +119,7 @@
     - name: give spectrum owner access to sradmin.exe
       ansible.builtin.lineinfile:
         path: /etc/sudoers
-        line: "{{ spectrum_owner }} ALL={{ install_dir }}/../SRAdmin/sradmin.exe"
+        line: "{{ spectrum_owner }} ALL={{ sradmin_dir }}/sradmin.exe"
 
 - name: install SRAdmin
   hosts: all
@@ -129,14 +129,14 @@
   tasks:
     - name: create sradmin directory
       ansible.builtin.file:
-        path: "{{ install_dir }}/../SRAdmin"
+        path: "{{ sradmin_dir }}"
         state: directory
         mode: '0755'
 
     - name: copy sradmin.exe
       copy:
         src: "{{ dist_dir }}/sdic/linux/sradmin.exe"
-        dest: "{{ install_dir }}/../SRAdmin"
+        dest: "{{ sradmin_dir }}"
         mode: '0744'
 
     - name: prepare rc2.d
@@ -152,13 +152,13 @@
     - name: set sradmin home
       ansible.builtin.lineinfile:
         path: /etc/init.d/sradmin
-        line: SRADHOME={{ install_dir }}/../SRAdmin
+        line: SRADHOME={{ sradmin_dir }}
         regexp: '^SRADHOME='
 
     - name: set sudoers symlink
       ansible.builtin.file:
         src: /etc/sudoers
-        dest: "{{ install_dir }}/../SRAdmin/sudoers"
+        dest: "{{ sradmin_dir }}/sudoers"
         owner: root
         group: root
         state: link
