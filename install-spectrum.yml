@@ -11,12 +11,12 @@
   tasks:
     - name: check if base version requires an other version
       debug:
-        msg: "you try to install {{ version }} but this requires an installed {{ preversion }}"
+        msg: "you want to install {{ version }} which requires {{ preversion }}"
       failed_when: preversion != ""
 
     - name: check if update version requires the base version
       debug:
-        msg: "Base version : {{ version }} , {{ updateversion }} requires  {{ requires }}"
+        msg: "base version : {{ version }} , {{ updateversion }} requires  {{ requires }}"
       failed_when:  requires not in version
 
 - name: install pre-requirements
@@ -24,10 +24,6 @@
   become: yes
   become_method: sudo
   tasks:
-    #    - name: Message
-    #  debug:
-    #    msg: "install prerequirements"
-
     - name: Ensure prerequirements are installed
       yum:
         name: "{{ packages }}"
@@ -235,29 +231,11 @@
         line: exclude_parts=SA-RPT-MGR
         regexp: '^exclude_parts='
 
-#    - name: add same
-#      ansible.builtin.lineinfile:
-#        path: "/tmp/{{ ansible_hostname }}.hostargs"
-#        line: same=yes
-#        regexp: '^same='
-
-#    - name: add overwrite
-#      ansible.builtin.lineinfile:
-#        path: "/tmp/{{ ansible_hostname }}.hostargs"
-#        line: overwrite=yes
-#        regexp: '^overwrite='
-
     - name: ignore disk space
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: ignore_disk_space=yes
         regexp: '^ignore_disk_space='
-
-#    - name: add patch yes
-#     ansible.builtin.lineinfile:
-#        path: "/tmp/{{ ansible_hostname }}.hostargs"
-#        line: patch=yes
-#        regexp: '^patch='
 
     - name: add locale
       ansible.builtin.lineinfile:
@@ -287,7 +265,7 @@
   hosts: all
   become: yes
   become_method: sudo
-  gather_facts: yes
+  gather_facts: no
   tasks:
     - name: get service facts
       service_facts:
@@ -305,7 +283,6 @@
 #        msg: "{{spec_out.stdout}}"
 #      when: spec_out.stdout is defined
 
-#TODO: nochmal prüfen ob installierte Version kompatibel zum update ist
 - name: install update if requested
   hosts: all
   become: yes
@@ -315,14 +292,6 @@
     updateversion: "{{ lookup('file', update_dir + '/version.dat', errors='ignore') }}"
 
   tasks:
-    #- name: read currend version
-    #  vars:
-    #    installed: "{{ lookup('file', {{ install_dir }}/Install-Tools/.history , errors='ignore') }}"
-
-    #- name: print spectrum log
-    #  debug:
-    #    msg: "{{ installed }}"
-    #  when: installed is defined
     - name: check if update already installed
       command: grep {{ updateversion }} {{ install_dir }}/Install-Tools/.history
       ignore_errors: yes
@@ -332,8 +301,8 @@
       failed_when: false
       register: updatecheck
 
-    - debug:
-        msg: "{{ updatecheck.rc }}"
+#    - debug:
+#        msg: "{{ updatecheck.rc }}"
 
     - block:
         - name: add install media path
@@ -341,18 +310,6 @@
             path: "/tmp/{{ ansible_hostname }}.hostargs"
             line: vcd_path={{ update_dir }}
             regexp: '^vcd_path='
-
-    #    - name: remove install ss
-    #      ansible.builtin.lineinfile:
-    #        path: "/tmp/{{ ansible_hostname }}.hostargs"
-    #        line: ss_install=no
-    #        regexp: '^ss_install='
-
-    #^    - name: remove install oneclick
-    #      ansible.builtin.lineinfile:
-    #        path: "/tmp/{{ ansible_hostname }}.hostargs"
-    #        line: oc_install=no
-    #        regexp: '^oc_install='
 
         - name: copy hostargs to localhost
           ansible.builtin.fetch:
