@@ -6,6 +6,7 @@
   vars:
     preversion: "{{ lookup('file', dist_dir + '/requires.dat', errors='ignore') }}"
     version: "{{ lookup('file', dist_dir + '/version.dat', errors='ignore') }}"
+    updateversion: "{{ lookup('file', update_dir + '/version.dat', errors='ignore') }}"
     requires: "{{ lookup('file', update_dir + '/requires.dat', errors='ignore') }}"
   tasks:
     - name: check if base version requires an other version
@@ -15,7 +16,7 @@
 
     - name: check if update version requires the base version
       debug:
-        msg: "Base version : {{ version }} , the update requires  {{ requires }}"
+        msg: "Base version : {{ version }} , {{ updateversion }} requires  {{ requires }}"
       failed_when:  requires not in version
 
 - name: install pre-requirements
@@ -282,7 +283,6 @@
         dest: ./
         flat: yes
 
-
 - name: fresh installation of Spectrum
   hosts: all
   become: yes
@@ -311,6 +311,9 @@
   become: yes
   become_method: sudo
   gather_facts: no
+  vars:
+    updateversion: "{{ lookup('file', update_dir + '/version.dat', errors='ignore') }}"
+
   tasks:
     #- name: read currend version
     #  vars:
@@ -320,49 +323,77 @@
     #  debug:
     #    msg: "{{ installed }}"
     #  when: installed is defined
-    - name: add install media path
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: vcd_path={{ update_dir }}
-        regexp: '^vcd_path='
+    - name: check if update already installed
+      command: grep {{ updateversion }} {{ install_dir }}/Install-Tools/.history
+      ignore_errors: yes
+      args:
+        warn: no
+      changed_when: false
+      failed_when: false
+      register: updatecheck
 
-#    - name: remove install ss
-#      ansible.builtin.lineinfile:
-#        path: "/tmp/{{ ansible_hostname }}.hostargs"
-#        line: ss_install=no
-#        regexp: '^ss_install='
+    - debug:
+        msg: "{{ updatecheck.rc }}"
 
-#^    - name: remove install oneclick
-#      ansible.builtin.lineinfile:
-#        path: "/tmp/{{ ansible_hostname }}.hostargs"
-#        line: oc_install=no
-#        regexp: '^oc_install='
+    - block:
+        - name: add install media path
+          ansible.builtin.lineinfile:
+            path: "/tmp/{{ ansible_hostname }}.hostargs"
+            line: vcd_path={{ update_dir }}
+            regexp: '^vcd_path='
 
-    - name: copy hostargs to localhost
-      ansible.builtin.fetch:
-        src: /tmp/{{ ansible_hostname }}.hostargs
-        dest: ./
-        flat: yes
-    #TODO: wenn nötig SS stoppen
-    #- name: stop spectroserver
-    #  command: sudo {{ spectrum_owner }} {{ inst_dir }}/bin/stopSS.sh
+    #    - name: remove install ss
+    #      ansible.builtin.lineinfile:
+    #        path: "/tmp/{{ ansible_hostname }}.hostargs"
+    #        line: ss_install=no
+    #        regexp: '^ss_install='
 
-    - name: start spectrum update silent installation
-      ansible.builtin.command: "{{ update_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -accept "
-      delegate_to: 127.0.0.1
-      become: no
-      register: update_out
-      failed_when: "'Installation failure' in update_out.stdout or 'Failed to copy' in update_out.stdout"
-      changed_when: "'Installation successful' in update_out.stdout"
-      #when: update_dir is defined
-      #when: false
+    #^    - name: remove install oneclick
+    #      ansible.builtin.lineinfile:
+    #        path: "/tmp/{{ ansible_hostname }}.hostargs"
+    #        line: oc_install=no
+    #        regexp: '^oc_install='
 
-#    - name: print spectrum log
-#      debug:
-#        msg: "{{update_out.stdout}}"
-#      when: update_out.stdout is defined
+        - name: copy hostargs to localhost
+          ansible.builtin.fetch:
+            src: /tmp/{{ ansible_hostname }}.hostargs
+            dest: ./
+            flat: yes
 
-    - name: start spectroserver
-      become: yes
-      become_user: "{{ spectrum_owner }}"
-      command: "{{ install_dir }}/bin/startSS.pl"
+        - name: check for running SpectroSERVER
+          shell: ps -ef | grep SpectroSERVER | grep -v grep
+          ignore_errors: yes
+          args:
+            warn: no
+          changed_when: false
+          failed_when: false
+          register: ssstatus
+
+    #    - debug:
+    #        msg: "{{ ssstatus }}"
+
+        - name: stop Spectroserver
+          become: yes
+          become_user: "{{ spectrum_owner }}"
+          command: "{{ install_dir }}/bin/stopSS.pl"
+          when: ssstatus.rc == 0
+          changed_when: ssstatus.rc == 0
+
+        - name: start spectrum update silent installation
+          ansible.builtin.command: "{{ update_dir }}/sdic/sdiclinux.exe -h ./{{ ansible_hostname }}.hostargs -p ./{{ ansible_hostname }}.pw -accept "
+          delegate_to: 127.0.0.1
+          become: no
+          register: update_out
+          failed_when: "'Installation failure' in update_out.stdout or 'Failed to copy' in update_out.stdout"
+          changed_when: "'Installation successful' in update_out.stdout"
+
+    #    - name: print spectrum log
+    #      debug:
+    #        msg: "{{update_out.stdout}}"
+    #      when: update_out.stdout is defined
+
+        - name: start spectroserver
+          become: yes
+          become_user: "{{ spectrum_owner }}"
+          command: "{{ install_dir }}/bin/startSS.pl"
+      when: updatecheck.rc != 0
