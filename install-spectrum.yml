@@ -93,6 +93,7 @@
         state: stopped
         enabled: no
 
+#TODO: rollout all hostname to all systems
     - name: set hostname in hosts file
       ansible.builtin.lineinfile:
         path: /etc/hosts
@@ -282,6 +283,11 @@
 #      debug:
 #        msg: "{{spec_out.stdout}}"
 #      when: spec_out.stdout is defined
+
+    - name: modify .hostrc
+      lineinfile:
+        path: "{{ install_dir }}/.hostrc"
+        line: "+"
 
 - name: install update if requested
   hosts: all
