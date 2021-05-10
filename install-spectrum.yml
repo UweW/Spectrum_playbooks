@@ -106,6 +106,7 @@
         regexp: '^$'
         replace: "##### replaced empty lines regarding Spectrum Bug"
 
+#TODO: Passwort als Variable
     - name: create spectrum owner
       ansible.builtin.user:
         name: "{{ spectrum_owner }}"
@@ -223,14 +224,8 @@
     - name: add install oneclick
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: oc_install=yes
+        line: oc_install={{ install_oneclick }}
         regexp: '^oc_install='
-
-    - name: add exclude parts
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: exclude_parts=SA-RPT-MGR
-        regexp: '^exclude_parts='
 
     - name: ignore disk space
       ansible.builtin.lineinfile:
@@ -243,6 +238,19 @@
         path: "/tmp/{{ ansible_hostname }}.hostargs"
         line: locale=en_US
         regexp: '^locale='
+
+    - name: remove exclude parts
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        regexp: '^exclude_parts='
+        state: absent
+
+    - name: add exclude parts
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ ansible_hostname }}.hostargs"
+        line: exclude_parts=SA-RPT-MGR
+        regexp: '^exclude_parts='
+      when: install_srm == "no"
 
     - name: copy hostargs to localhost
       ansible.builtin.fetch:
@@ -354,9 +362,10 @@
     #      debug:
     #        msg: "{{update_out.stdout}}"
     #      when: update_out.stdout is defined
+#todo: is_seconday Logik einbinden
 
-        - name: start spectroserver
-          become: yes
-          become_user: "{{ spectrum_owner }}"
-          command: "{{ install_dir }}/bin/startSS.pl"
-      when: updatecheck.rc != 0
+#        - name: start spectroserver
+#          become: yes
+#          become_user: "{{ spectrum_owner }}"
+#          command: "{{ install_dir }}/bin/startSS.pl"
+#      when: updatecheck.rc != 0
