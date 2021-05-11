@@ -297,6 +297,35 @@
         path: "{{ install_dir }}/.hostrc"
         line: "+"
 
+    #TODO: is_secondary --> primary: SSdbsave, secondary: scp, ssdbload
+    - block:
+        - name: primary ssdbsave
+          become: yes
+          become_user: "{{ spectrum_owner }}"
+          command: "{{ install_dir }}/SS-Tools/SSdbsave -cmq ../SS-DB-Backup/ansible-{{ ansible_hostname }}"
+          args:
+            chdir: "{{ install_dir }}/SS"
+
+        - name: get ssdb
+          become: yes
+          become_user: "{{ spectrum_owner }}"
+          fetch: src={{ install_dir }}/SS-DB-Backup/ansible-{{ ansible_hostname }}.SSdb dest=temp/ flat=yes
+      when: is_secondary == "no"
+
+    - block:
+       - name: upload ssdb
+         become: yes
+         become_user: "{{ spectrum_owner }}"
+         copy: src=temp/ansible-{{ is_secondary_for }}.SSdb dest={{ install_dir }}/SS/
+
+       - name: load ssdb on secondary
+         become: yes
+         become_user: "{{ spectrum_owner }}"
+         command: "{{ install_dir }}/SS-Tools/SSdbload -ilq -add 20 ansible-{{ is_secondary_for }}.SSdb"
+         args:
+           chdir: "{{ install_dir }}/SS"
+      when: is_secondary == "yes"
+
 - name: install update if requested
   hosts: all
   become: yes
