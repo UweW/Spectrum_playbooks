@@ -308,7 +308,7 @@
 
     - name: copy .hostrc to spectrum server
       become: yes
-      become_user: {{ spectrum_owner }}
+      become_user: "{{ spectrum_owner }}"
       ansible.builtin.copy:
         src: tmp/.hostrc
         dest: "{{ install_dir }}/"
