@@ -93,13 +93,6 @@
         state: stopped
         enabled: no
 
-#TODO: rollout all hostnames to all systems
-    - name: set hostname in hosts file
-      ansible.builtin.lineinfile:
-        path: /etc/hosts
-        regexp: "^{{ ansible_host }}"
-        line: "{{ ansible_host }} {{ ansible_hostname }}"
-
     - name: remove empty lines from sudoers
       ansible.builtin.replace:
         path: /etc/sudoers
@@ -118,6 +111,20 @@
       ansible.builtin.lineinfile:
         path: /etc/sudoers
         line: "{{ spectrum_owner }} ALL={{ sradmin_dir }}/sradmin.exe"
+
+    #TODO: rollout all hostnames to all systems
+    - name: Show all the hosts in the current play
+      lineinfile:
+        create: yes
+        path: "tmp/hosts.tmp"
+        line: "{{ ansible_host }} {{ ansible_hostname }}"
+      delegate_to: localhost
+
+    - name: rollout hosts
+      lineinfile:
+        path: "/etc/hosts"
+        line: "{{ item }}"
+      loop: "{{ lookup('file', 'tmp/hosts.tmp').splitlines() }}"
 
 - name: install SRAdmin
   hosts: all
