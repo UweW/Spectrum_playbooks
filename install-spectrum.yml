@@ -180,6 +180,7 @@
     - name: create install hostargs file
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
+        flat: yes
         line: remote_host={{ ansible_hostname }}
         regexp: '^remote_host='
         create: yes
@@ -290,12 +291,25 @@
 #      debug:
 #        msg: "{{spec_out.stdout}}"
 #      when: spec_out.stdout is defined
-
     #TODO: add every server in .hostrc  instead of +
-    - name: modify .hostrc
+    - name: create .hostrc template
       lineinfile:
-        path: "{{ install_dir }}/.hostrc"
-        line: "+"
+        path: tmp/.hostrc
+        line: "{{ ansible_hostname }}"
+        create: yes
+
+    - name: copy .hostrc to spectrum server
+      become: yes
+      become_user: {{ spectrum_owner }}
+      ansible.builtin.fetch:
+        src: tmp/.hostrc
+        dest: {{ install_dir }}/
+        flat: yes
+
+#    - name: modify .hostrc
+#      lineinfile:
+#        path: "{{ install_dir }}/.hostrc"
+#        line: "+"
 
     - block:
         - name: check for running SpectroSERVER
