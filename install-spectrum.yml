@@ -304,14 +304,14 @@
         path: tmp/.hostrc
         line: "{{ ansible_hostname }}"
         create: yes
+      delegate_to: localhost
 
     - name: copy .hostrc to spectrum server
       become: yes
       become_user: {{ spectrum_owner }}
-      ansible.builtin.fetch:
+      ansible.builtin.copy:
         src: tmp/.hostrc
-        dest: {{ install_dir }}/
-        flat: yes
+        dest: "{{ install_dir }}/"
 
 #    - name: modify .hostrc
 #      lineinfile:
