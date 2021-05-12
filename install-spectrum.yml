@@ -292,12 +292,30 @@
 #        msg: "{{spec_out.stdout}}"
 #      when: spec_out.stdout is defined
 
+    #TODO: add every server in .hostrc  instead of +
     - name: modify .hostrc
       lineinfile:
         path: "{{ install_dir }}/.hostrc"
         line: "+"
 
     - block:
+        #TODO: in case of rerun, make sure spectroserver is stopped
+        - name: check for running SpectroSERVER
+          shell: ps -ef | grep SpectroSERVER | grep -v grep
+          ignore_errors: yes
+          args:
+            warn: no
+          changed_when: false
+          failed_when: false
+          register: ssstatus
+
+        - name: stop Spectroserver
+          become: yes
+          become_user: "{{ spectrum_owner }}"
+          command: "{{ install_dir }}/bin/stopSS.pl"
+          when: ssstatus.rc == 0
+          changed_when: ssstatus.rc == 0
+
         - name: primary ssdbsave
           become: yes
           become_user: "{{ spectrum_owner }}"
