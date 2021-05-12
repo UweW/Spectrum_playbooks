@@ -106,13 +106,12 @@
         regexp: '^$'
         replace: "##### replaced empty lines regarding Spectrum Bug"
 
-#TODO: Passwort als Variable
     - name: create spectrum owner
       ansible.builtin.user:
         name: "{{ spectrum_owner }}"
         comment: Spectrum owner
         shell: /bin/bash
-        password: "{{ 'spectrum' | password_hash('sha512') }}"
+        password: "{{ spectrum_password | password_hash('sha512') }}"
         update_password: on_create
 
     - name: give spectrum owner access to sradmin.exe
@@ -299,7 +298,6 @@
         line: "+"
 
     - block:
-        #TODO: in case of rerun, make sure spectroserver is stopped
         - name: check for running SpectroSERVER
           shell: ps -ef | grep SpectroSERVER | grep -v grep
           ignore_errors: yes
