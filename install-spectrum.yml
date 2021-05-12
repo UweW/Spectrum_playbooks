@@ -274,7 +274,7 @@
   hosts: all
   become: yes
   become_method: sudo
-  gather_facts: no
+  gather_facts: yes
   tasks:
     - name: get service facts
       service_facts:
@@ -302,21 +302,21 @@
         - name: primary ssdbsave
           become: yes
           become_user: "{{ spectrum_owner }}"
-          command: "{{ install_dir }}/SS-Tools/SSdbsave -cmq ../SS-DB-Backup/ansible-{{ ansible_hostname }}"
+          command: "{{ install_dir }}/SS-Tools/SSdbsave -cmq /tmp/ansible-{{ ansible_hostname }}"
           args:
             chdir: "{{ install_dir }}/SS"
 
         - name: get ssdb
           become: yes
           become_user: "{{ spectrum_owner }}"
-          fetch: src={{ install_dir }}/SS-DB-Backup/ansible-{{ ansible_hostname }}.SSdb dest=temp/ flat=yes
+          fetch: src=/tmp/ansible-{{ ansible_hostname }}.SSdb dest=tmp/ flat=yes
       when: is_secondary == "no"
 
     - block:
        - name: upload ssdb
          become: yes
          become_user: "{{ spectrum_owner }}"
-         copy: src=temp/ansible-{{ is_secondary_for }}.SSdb dest={{ install_dir }}/SS/
+         copy: src=tmp/ansible-{{ is_secondary_for }}.SSdb dest={{ install_dir }}/SS/
 
        - name: load ssdb on secondary
          become: yes
