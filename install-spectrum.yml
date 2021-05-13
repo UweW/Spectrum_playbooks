@@ -301,6 +301,7 @@
 #      when: spec_out.stdout is defined
     #TODO: add every server in .hostrc  instead of +
     - name: create .hostrc template
+      become: no
       lineinfile:
         path: tmp/.hostrc
         line: "{{ ansible_hostname }}"
@@ -308,8 +309,8 @@
       delegate_to: localhost
 
     - name: copy .hostrc to spectrum server
-      become: yes
-      become_user: "{{ spectrum_owner }}"
+      #become: yes
+      #become_user: "{{ spectrum_owner }}"
       ansible.builtin.copy:
         src: tmp/.hostrc
         dest: "{{ install_dir }}/"
