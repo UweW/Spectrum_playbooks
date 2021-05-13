@@ -299,7 +299,7 @@
 #      debug:
 #        msg: "{{spec_out.stdout}}"
 #      when: spec_out.stdout is defined
-    #TODO: add every server in .hostrc  instead of +
+    #TODO: move hostrc after ssdb load on secondary
     - name: create .hostrc template
       become: no
       lineinfile:
