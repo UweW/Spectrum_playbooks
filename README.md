@@ -13,3 +13,8 @@ ansible playbooks for installing CA / Broadcom DX Netops Spectrum
 - create roles
 - create diffrent hostargs templates
 - combine application role with templates
+
+224
+225
+162
+219

@@ -127,6 +127,13 @@
         line: "{{ item }}"
       loop: "{{ lookup('file', 'tmp/hosts.tmp').splitlines() }}"
 
+    - name: rollout hosts to localhost
+      lineinfile:
+        path: "/etc/hosts"
+        line: "{{ item }}"
+      loop: "{{ lookup('file', 'tmp/hosts.tmp').splitlines() }}"
+      delegate_to: localhost
+
 - name: install SRAdmin
   hosts: all
   become: yes
