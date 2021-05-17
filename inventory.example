@@ -21,6 +21,7 @@ sradmin_dir="/opt/CA/SRAdmin"
 l_handle="0x100000"
 install_oneclick=no
 install_srm=no
+install_ss=yes
 is_secondary=no
 is_secondary_for=""
 

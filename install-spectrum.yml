@@ -233,7 +233,7 @@
     - name: add install ss
       ansible.builtin.lineinfile:
         path: "/tmp/{{ ansible_hostname }}.hostargs"
-        line: ss_install=yes
+        line: ss_install={{ install_ss }}
         regexp: '^ss_install='
 
     - name: add install oneclick
