@@ -112,7 +112,6 @@
         path: /etc/sudoers
         line: "{{ spectrum_owner }} ALL={{ sradmin_dir }}/sradmin.exe"
 
-    #TODO: rollout all hostnames to all systems
     - name: Show all the hosts in the current play
       become: no
       lineinfile:
