@@ -355,7 +355,9 @@
           become: yes
           become_user: "{{ spectrum_owner }}"
           fetch: src=/tmp/ansible-{{ ansible_hostname }}.SSdb dest=tmp/ flat=yes
-      when: is_secondary == "no" and install_ss= "yes"
+      when:
+        - is_secondary == "no"
+        - install_ss= "yes"
 
     - block:
        - name: upload ssdb
