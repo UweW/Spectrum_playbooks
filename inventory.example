@@ -28,14 +28,17 @@ is_secondary_for=""
 # which server will be the main location server
 main_loc_serv="spec1"
 
+# lets start with the main location server and primary
 [server1]
 # hostname and IP of the server. 
-# Will be used to setup /etc/hosts, otherwise communication between spectrum server will fail.
+# hostname and dns name should match, be otherwise communication between spectrum server will fail.
 spec1 ansible_host=192.168.1.2
 
 [server1:vars]
 # Landscape handle 
 l_handle="0x100000"
+# change to no if you want to run a oneclick or Report Manager only machine
+install_ss=yes
 # change to "yes" if you want to install oneclick on that server
 install_oneclick=no
 # change to "yes" if you want to install Spectrum report manager on that server
@@ -48,11 +51,13 @@ is_secondary_for=""
 # you can add a much as server as you like. They are all installed parallel.
 # you can name the sections [xxx] however you want. It is only important you have a corresponding section named [xxx:vars]
 
+# and now the secondary
 [server2]
 spec2 ansible_host=192.168.1.3
 
 [server2:vars]
 l_handle="0x100000"
+install_ss=yes
 install_oneclick=yes
 install_srm=no
 is_secondary=yes
