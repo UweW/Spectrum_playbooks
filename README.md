@@ -34,9 +34,21 @@ To give you an idea of the installation time I measured in my lab:
   * follow the comments in the template and customize your inventory file
 * run ansible 'ansible-playbook install-spectrum.yml -i inventory.mySpectrum'
 
-**what does the playbook do:**
+**what does the playbook do for you:**
 
-* Install all 
+* Installs all missing required rpm packages
+* set SELINUX to permissive
+* disable firewalld
+* create user for Spectrum
+* give spectrum user the necessary sudoers rights
+* install sradmin
+* prepare hostargs and password files from inventory 
+* add all spectrum server in /etc/hosts
+* install Spectrum minor version
+* load ssdb with presedence 20 on secondarys
+* add all spectrum server to hostrc
+* install Spectrum update 
+* start Spectroserver
 
 
 **tested combinations:**
