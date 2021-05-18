@@ -24,7 +24,7 @@ To give you an idea of the installation time I measured in my lab:
 * clone of this repository
 * properly configured name resolution. Ansible host must be able to resolve the Spectrum servers by name.
 * licensed Spectrum distributed installation archives
-* allowed communication from ansible host port 22/tcp and 46517/tcp to Spectrum servers
+* allowed communication from ansible host to Spectrum servers port 22/tcp and 46517/tcp
 
 **how it works:**
 
