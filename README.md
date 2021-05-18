@@ -1,5 +1,19 @@
 # Spectrum Playbooks
 ansible playbook to install CA/Broadcom DX Netops Spectrum.
+The playbook help you set up any size of spectrum environments.
+It uses the Spectrum distributed installation procedure and all the Spectrum servers will be installed in parallel.
+You only need one configuration file (inventory) to define your environment.
+
+What you can define server with these functions:
+* SpectroSERVER primary and secondary
+* OneClick
+* Spectrum Report Manager
+
+or any valid combination.
+
+To give you an idea of the installation time I measured in my lab:
+* 2 SpectroSERVER (1 primary and 1 secondary with Oneclick) : 28 min
+* 4 SpectroSERVER (2 primary and 2 secondary, one with SRM and Oneclick): 31 min
 
 **Requirements:**
 * ansible is available for any linux derivate, but for the Spectrum installation binaries it is necessary that you use a Spectrum compatible linux for ansible
@@ -24,17 +38,5 @@ ansible playbook to install CA/Broadcom DX Netops Spectrum.
 |CentOS 7.9|CentOS 8.1|10.4.3.0.21|10.4.3.1.17|
 |CentOS 7.9|Centos 8 Stream|10.4.3.0.21|10.4.3.1.17|
 
-
-
-### fixes or enhancements
-
-
-### Next todo's
-- create roles
-- create diffrent hostargs templates
-- combine application role with templates
-
-224
-225
-162
-219
+#### Next todo's
+- migrate to ansible roles
