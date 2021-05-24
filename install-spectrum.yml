@@ -80,6 +80,7 @@
         - xorg-x11-xkb-utils.x86_64
         - xterm.x86_64
         - zlib.x86_64
+        - xorg-x11-server-Xvfb
 
     - name: set SElinux to permissive mode
       ansible.builtin.lineinfile:
@@ -449,3 +450,12 @@
       become_user: "{{ spectrum_owner }}"
       command: "{{ install_dir }}/bin/startSS.pl"
       when: install_ss == "yes"
+
+    - name: start webapp
+      become: yes
+      become_user: "{{ spectrum_owner }}"
+      command: "{{ install_dir }}/webtomcat/bin/startWebTomcat.sh"
+      when:
+        - install_oneclick == "yes"
+        - enable_webapp == "yes"
+
