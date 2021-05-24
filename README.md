@@ -61,3 +61,4 @@ To give you an idea of the installation time I measured in my lab:
 #### Next todo's
 - migrate to ansible roles
 - add xorg-x11-server-Xvfb and start option for webapp
+- $SPECROOT>webtomcat>bin directory and execute the following command:./startWebTomcat.sh 
