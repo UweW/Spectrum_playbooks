@@ -42,7 +42,7 @@ l_handle="0x100000"
 install_ss=yes
 # change to "yes" if you want to install oneclick on that server
 install_oneclick=no
-# change to yes if you want to start oneclich wabapp. Requires install_oneclick=yes
+# change to yes if you want to start oneclick webapp. Requires install_oneclick=yes
 enable_webapp=yes
 # change to "yes" if you want to install Spectrum report manager on that server
 install_srm=no
@@ -52,7 +52,7 @@ is_secondary=no
 is_secondary_for=""
 
 # you can add a much as server as you like. They are all installed parallel.
-# you can name the sections [xxx] however you want. It is only important you have a corresponding section named [xxx:vars]
+# you can name the sections [abc] however you want. It is only important you have a corresponding section named [abc:vars]
 
 # and now the secondary
 [server2]
