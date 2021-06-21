@@ -13,7 +13,7 @@ You can define server with these functions:
 
 or any valid combination.
 
-To give you an idea of the installation time I measured in my lab:
+To give you an idea of the installation time I measured in the lab:
 * 2 SpectroSERVER (1 primary and 1 secondary with Oneclick) : 28 min
 * 4 SpectroSERVER (2 primary and 2 secondary, one with SRM and Oneclick): 31 min
 
