@@ -1,9 +1,10 @@
 # Spectrum Playbooks
-ansible playbook to install CA/Broadcom DX Netops Spectrum.
+Ansible playbook to install CA/Broadcom DX Netops Spectrum.
 The playbook help you set up any size of spectrum environments.
 It uses the Spectrum distributed installation procedure and all the Spectrum servers will be installed in parallel.
 The minor version will be installed and also the latest update if defined.
 You only need one configuration file (inventory) to define your environment!
+Ansible is only needed on the host from where Spectrum distributed install will run. 
 
 You can define server with these functions:
 * SpectroSERVER primary and secondary
@@ -17,8 +18,8 @@ To give you an idea of the installation time I measured in my lab:
 * 4 SpectroSERVER (2 primary and 2 secondary, one with SRM and Oneclick): 31 min
 
 **Requirements:**
-* fresh Linux server/VMs for Spectrum
-* a user with sudo rights to run the installation
+* fresh Linux server/VMs for Spectrum with a user with sudo rights
+* a host from which to install Spectrum with the help of ansible
 * ansible is available for any linux derivate, but for the Spectrum installation binaries it is necessary that you use a Spectrum compatible linux for ansible
 * tested with ansible 2.9 but versions => 2.5 should work
 * clone of this repository
@@ -26,15 +27,7 @@ To give you an idea of the installation time I measured in my lab:
 * licensed Spectrum distributed installation archives
 * allowed communication from ansible host to Spectrum servers port 22/tcp and 46517/tcp
 
-**how it works:**
-
-* copy the Spectrum distribution file to the ansible machine and unpack the archive
-* create your inventory 
-  * use inventory.example as template and name it for example inventory.mySpectrum
-  * follow the comments in the template and customize your inventory file
-* run ansible 'ansible-playbook install-spectrum.yml -i inventory.mySpectrum'
-
-**what does the playbook do for you:**
+**what will the playbook do for you:**
 
 * Installs all missing required rpm packages
 * set SELINUX to permissive
@@ -49,6 +42,14 @@ To give you an idea of the installation time I measured in my lab:
 * add all spectrum server to hostrc
 * install Spectrum update 
 * start Spectroserver
+
+**how it works:**
+
+* copy the Spectrum distribution file to the ansible machine and unpack the archive
+* create your inventory
+  * use inventory.example as template and name it for example inventory.mySpectrum
+  * follow the comments in the template and customize your inventory file
+* run ansible 'ansible-playbook install-spectrum.yml -i inventory.mySpectrum'
 
 
 **tested combinations:**
