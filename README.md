@@ -65,3 +65,4 @@ To give you an idea of the installation time I measured in the lab:
 - [x] option for SRM
 - [x] add xorg-x11-server-Xvfb and start option for webapp
 - [x] startWebTomcat 
+- [ ] migrate creation of hostargs file to a jinja template
