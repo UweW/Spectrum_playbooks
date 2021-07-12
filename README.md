@@ -58,6 +58,7 @@ To give you an idea of the installation time I measured in the lab:
 |----------|----------|----------|----------|
 |CentOS 7.9|CentOS 8.1|10.4.3.0.21|10.4.3.1.17|
 |CentOS 7.9|Centos 8 Stream|10.4.3.0.21|10.4.3.1.17|
+|CentOS 7.9|Centos 8.1|running 10.4.3.1.17|21.2.1.0.46|
 
 #### Next todo's
 - [x] add precedence 20 to secondarys
